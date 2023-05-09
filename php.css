@@ -1,0 +1,78 @@
+<section id="comments" class="comments">
+    <!-- si les commentaires sont acceptés !-->
+    <?php if (comments_open()) : ?>
+        <?php
+        // on génère le formulaire avec du html personnalisé
+        comment_form([
+            'title_reply' => 'Une remarque, une question ? Laissez un commentaire.',
+            'fields' => apply_filters('comment_form_default_fields', [
+                'author' => '<label for="author">Votre nom <abbr class="required" title="obligatoire">*</abbr></label><br>
+                            <input id="author" name="author" type="text" value="" placeholder="Nom" required>',
+
+                'email'  => '<label for="email">Votre adresse email <abbr class="required" title="obligatoire">*</abbr></label><br>
+                            <input id="email" name="email" type="email" value="" placeholder="Email" required>'
+            ]),
+
+            'comment_field' => '<label for="comment">Que souhaitez-vous dire ? <abbr class="required" title="obligatoire">*</abbr></label><br>
+                                    <textarea id="comment" name="comment" placeholder="Commentaire" required></textarea>',
+            'comment_notes_before' => '',
+            'submit_button' => "<button>Envoyer le commentaire</button>"
+        ]);
+        ?>
+
+        <!-- fonction de récupération des commentaires, nous y reviendrons !-->
+        <ul>
+            <?php wp_list_comments('callback=steroids_comment'); ?>
+        </ul>
+
+    <!-- On peut afficher un message si les commentaires sont fermés !-->
+    <?php else : ?>
+        <p><?= __('Comments are closed here.', 'steroids') ?></p>
+    <?php endif; ?>
+</section>
+
+function steroids_comment($comment, $args, $depth) {
+    ?>
+    <li>
+        <article id="comment-<?php comment_ID(); ?>" class="comment">
+            <header>
+                <span><?= $comment->comment_author ?></span>
+                <time datetime="<?php comment_time('c'); ?>">
+                    le <?= get_comment_date() ?>
+                </time>
+            </header>
+            <div class="comment-content"><?php comment_text(); ?></div>
+
+            <a class="reply" href="#comments" data-id="<?= $comment->comment_ID ?>">Répondre</a>
+        </article>
+    <?php
+}
+
+$comments_arr = get_comments('post_id=' . get_the_ID());
+$comments = null;
+
+foreach ($comments_arr as $comment) {
+    $comments .= '<article>';
+    $comments .= '<header>';
+    $comments .= '<h1><cite class="fn">' . $comment->comment_author . '</cite> dit :</h1>';
+    $comments .= '<date datetime="' . $comment->comment_date . '">' . date_i18n(get_option('date_format'), strtotime($comment->comment_date)) . '</date>';
+    $comments .= '</header>';
+    $comments .= '<p>' . $comment->comment_content . '</p>';
+    $comments .= '</article>';
+}
+
+echo $comments;
+
+  <?php
+// Version WordPress native
+if (is_singular() && comments_open() && get_option('thread_comments')) {
+    wp_enqueue_script('comment-reply');
+}
+
+<a class="reply" href="#comments" data-id="<?= $comment->comment_ID ?>">Répondre</a>
+
+  comment    mon petit commentaire de test
+author    buzut
+email    mon@email.com
+comment_post_ID    164
+comment_parent    45
